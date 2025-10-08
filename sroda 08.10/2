@@ -1,0 +1,42 @@
+import pytest
+
+def palindrome(slowo):
+    slowo = slowo.replace(" ", "").lower()
+    odwrocone=slowo[::-1]
+
+    if odwrocone == slowo:
+        return True
+    else:
+        return False
+
+# def test_palindrome():
+#     assert palindrome("kajak") == True
+#     assert palindrome("Kobyła ma mały bok") == True
+#     assert palindrome("python") == False
+#     assert palindrome("") == True
+#     assert palindrome("A") == True
+
+
+
+def fibonacci(n):
+    if n==0:
+        return 0
+    elif n==1 or n==2:
+        return 1
+
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# def test_fibonacci():
+    # assert fibonacci(19) == 4181
+
+
+def count_vowels(slowo):
+    slowo = slowo.lower()
+    return slowo.count("a") + slowo.count("e") + slowo.count("i") + slowo.count("o") + slowo.count("u") + slowo.count("y")
+
+def test_count_vowels():
+    assert count_vowels("Python") == 2
+    assert count_vowels("AEIOUY") == 6
+    assert count_vowels("bcd") == 0
+    assert count_vowels("") == 0
+    assert count_vowels("Próba żółwia") == 3
