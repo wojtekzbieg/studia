@@ -1,3 +1,5 @@
+import pytest
+
 
 def palindrome(slowo):
     slowo = slowo.replace(" ", "").lower()
@@ -22,15 +24,18 @@ def fibonacci(n):
         return 0
     elif n==1 or n==2:
         return 1
+    elif n < 0:
+        raise ValueError
 
     return fibonacci(n-1) + fibonacci(n-2)
 
-# def test_fibonacci():
-#     assert fibonacci(0) == 0
-#     assert fibonacci(1) == 1
-#     assert fibonacci(5) == 5
-#     assert fibonacci(10) == 55
-#     assert fibonacci(-1) == None
+def test_fibonacci():
+    assert fibonacci(0) == 0
+    assert fibonacci(1) == 1
+    assert fibonacci(5) == 5
+    assert fibonacci(10) == 55
+    with pytest.raises(ValueError):
+        fibonacci(-1)
 
 
 
@@ -48,16 +53,18 @@ def fibonacci(n):
 
 
 def calculate_discount(price, discount):
-    if 0 > discount > 1:
-        raise ValueError("xdxd")
+    if 0 > discount or discount > 1:
+        raise ValueError("Wystąpił błąd")
     return price * (1 - discount)
 
 # def test_calculate_discount():
 #     assert calculate_discount(100,0.2) == 80.0
 #     assert calculate_discount(50,0) == 50.0
 #     assert calculate_discount(200,1) == 0.0
-#     assert calculate_discount(100, -0.1) == ValueError
-#     assert calculate_discount(100,1.5) == 80.0
+#     with pytest.raises(ValueError):
+#         calculate_discount(100, -0.1)
+#     with pytest.raises(ValueError):
+#         calculate_discount(100, 1.5)
 
 
 
@@ -121,12 +128,14 @@ def is_prime(liczba):
 
     return True
 
-def test_is_prime():
-    assert is_prime(2) == True
-    assert is_prime(3) == True
-    assert is_prime(4) == False
-    assert is_prime(0) == False
-    assert is_prime(1) == False
-    assert is_prime(5) == True
-    assert is_prime(97) == True
+# def test_is_prime():
+#     assert is_prime(2) == True
+#     assert is_prime(3) == True
+#     assert is_prime(4) == False
+#     assert is_prime(0) == False
+#     assert is_prime(1) == False
+#     assert is_prime(5) == True
+#     assert is_prime(97) == True
+
+
 
