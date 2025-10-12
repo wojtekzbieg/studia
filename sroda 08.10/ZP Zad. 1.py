@@ -13,7 +13,7 @@ class Zwierze:
         self._imie = wartosc
 
     def przedstaw_sie(self):
-        return f"Jestem {self._imie}"
+        print(f"Jestem {self._imie}")
 
 
 
@@ -37,7 +37,7 @@ class Kot(Zwierze):
             raise ValueError("To pole nie może być puste")
 
     def przedstaw_sie(self):
-        return print(f"Jestem {self._imie}, moje ulubione jedzenie to {self._ulubione_jedzenie}")
+        print(f"Jestem {self.imie}, moje ulubione jedzenie to {self.ulubione_jedzenie}")
 
 kot1 = Kot("Puszek", "karma dla kotów")
 kot1.przedstaw_sie()
@@ -99,8 +99,8 @@ class Pies(Zwierze):
 
     def przedstaw_sie(self):
         szczeka_info = "szczekam często" if self.czy_szczeka_czesto else "nie szczekam często"
-        return print(f"Jestem {self.imie}, a moja rasa to {self.rasa}, i {szczeka_info}. Mam {self._wiek} lat, "
-                f"kolor mojej sierści to {self._kolor_siersci}")
+        print(f"Jestem {self.imie}, a moja rasa to {self.rasa}, i {szczeka_info}. Mam {self.wiek} lat, "
+                f"kolor mojej sierści to {self.kolor_siersci}")
 
 
 pies1 = Pies("Azor", "Owczarek Niemiecki", True, 5, "brązowy")
