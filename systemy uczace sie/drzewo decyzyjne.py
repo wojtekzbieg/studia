@@ -20,4 +20,12 @@ for j in range(len(lista[0])):
     lista2=[]
     for i in range(len(lista)):
         lista2.append(lista[i][j])
-    print(f"Atrybut {j}: {set(lista2)}")
+    wartosci = set(lista2)
+    print(f"Atrybut na pozycji {j} - {len(wartosci)} mozliwe wartosci")
+
+    for k in wartosci:
+        liczba_wystapien = lista2.count(k)
+        print(f"Wartosc atrybutu: {k}, liczba wystapien: {liczba_wystapien}")
+
+    print()
+
