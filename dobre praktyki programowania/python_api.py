@@ -1,12 +1,18 @@
 from typing import Union
-
 from fastapi import FastAPI
 from pydantic import BaseModel
+from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import create_engine, Column, Integer, String, Numeric
 
 import csv
 
 
 app = FastAPI()
+
+engine = create_engine("sqlite:///C:/Users/Wojtek/DataGripProjects/identifier.sqlite")
+Base = declarative_base()
+Session = sessionmaker(bind=engine)
+session = Session()
 
 
 class Item(BaseModel):
@@ -15,34 +21,40 @@ class Item(BaseModel):
     is_offer: Union[bool, None] = None
 
 
-class Movie:
-    def __init__(self, movieId, title, genres):
-        self.movieId = movieId
-        self.title = title
-        self.genres = genres
+class Movie(Base):
+    __tablename__ = "Movies"
+
+    movieId = Column(Integer, primary_key=True)
+    title = Column(String(100))
+    genres = Column(String(100))
 
 
-class Tag:
-    def __init__(self, userId, movieId, tag, timestamp):
-        self.userId = userId
-        self.movieId = movieId
-        self.tag = tag
-        self.timestamp = timestamp
+class Tag(Base):
+    __tablename__ = "Tags"
+
+    tagId = Column(Integer, primary_key=True, autoincrement=True)
+    userId = Column(Integer)
+    movieId = Column(Integer)
+    tag = Column(String(50))
+    timestamp = Column(Integer)
 
 
-class Rating:
-    def __init__(self, userId, movieId, rating, timestamp):
-        self.userId = userId
-        self.movieId = movieId
-        self.rating = rating
-        self.timestamp = timestamp
+class Rating(Base):
+    __tablename__ = "Ratings"
+
+    ratingId = Column(Integer, primary_key=True, autoincrement=True)
+    userId = Column(Integer)
+    movieId = Column(Integer)
+    rating = Column(Numeric(2, 1))
+    timestamp = Column(Integer)
 
 
-class Link:
-    def __init__(self, movieId, imdbId, tmdbId):
-        self.movieId = movieId
-        self.imdbId = imdbId
-        self.tmdbId = tmdbId
+class Link(Base):
+    __tablename__ = "Links"
+
+    movieId = Column(Integer, primary_key=True)
+    imdbId = Column(Integer)
+    tmdbId = Column(Integer)
 
 
 @app.get("/")
@@ -78,28 +90,33 @@ def wyswietl_linki():
 
 
 
-
-
-
-
 def wczytaj_plik(plik, klasa):
-    lista=[]
     with open(plik, mode = "r", encoding="utf-8") as file:
-        plik_CSV = csv.DictReader(file)
-        for i in plik_CSV:
-            # film = klasa(i["movieId"], i["title"], i["genres"])
-            film = klasa(**i)
-            lista.append(film)
-    return lista
+        plikCSV = csv.DictReader(file)
+        for i in plikCSV:
+            obiekt = klasa(**i)
+            session.add(obiekt)
 
-lista_filmow = wczytaj_plik("movies.csv", Movie)
-
-lista_tagow = wczytaj_plik("tags.csv", Tag)
-
-lista_ratingow = wczytaj_plik("ratings.csv", Rating)
-
-lista_linkow = wczytaj_plik("links.csv", Link)
+lista_filmow = session.query(Movie).all()
+lista_tagow = session.query(Tag).all()
+lista_ratingow = session.query(Rating).all()
+lista_linkow = session.query(Link).all()
 
 
+# wczytaj_plik("movies.csv", Movie)
+# wczytaj_plik("tags.csv", Tag)
+# wczytaj_plik("ratings.csv", Rating)
+# wczytaj_plik("links.csv", Link)
 
+# Base.metadata.create_all(engine)
+
+# movie1 = Movie(movieId=1, title="Shrek", genres="Funny|Educational")
+
+# session.add(movie1)
+# session.query(Movie).delete()
+# session.commit()
+
+
+# for i in movies:
+#     print(i.movieId, i.title)
 
