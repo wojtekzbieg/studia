@@ -202,12 +202,6 @@ class ListaDwukierunkowa:
 
 
 
-
-
-
-
-
-
 lista1 = ListaJednokierunkowa()
 
 lista1.dodaj_na_poczatku(4)
@@ -219,8 +213,6 @@ lista1.dodaj_na_koncu(5)
 lista1.usun_na_koncu()
 lista1.usun_na_poczatku()
 lista1.usun_w_wybranym_miejscu(1)
-
-# lista1.wyswietl_od_poczatku()
 
 
 
