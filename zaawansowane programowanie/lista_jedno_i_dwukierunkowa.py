@@ -3,6 +3,7 @@ class WezelJednokierunkowy:
         self.data = data
         self.next = None
 
+
 class ListaJednokierunkowa:
     def __init__(self):
         self.head = None
@@ -31,7 +32,6 @@ class ListaJednokierunkowa:
 
         aktualny_wezel.next = nowy_wezel
 
-
     def dodaj_w_wybranym_miejscu(self, data, index):
         nowy_wezel = WezelJednokierunkowy(data)
 
@@ -44,8 +44,6 @@ class ListaJednokierunkowa:
 
         nowy_wezel.next = aktualny_wezel.next
         aktualny_wezel.next = nowy_wezel
-
-
 
     def usun_na_poczatku(self):
         if self.head is None:
@@ -65,7 +63,6 @@ class ListaJednokierunkowa:
 
         aktualny_wezel.next = aktualny_wezel.next.next
 
-
     def usun_na_koncu(self):
         if self.head is None:
             print("lista jest pusta")
@@ -85,18 +82,16 @@ class ListaJednokierunkowa:
             aktualny_wezel = aktualny_wezel.next
 
 
-
-
 class WezelDwukierunkowy:
     def __init__(self, data):
         self.data = data
         self.next = None
         self.previous = None
 
+
 class ListaDwukierunkowa:
     def __init__(self):
         self.head = None
-
 
     def dodaj_na_poczatku(self, data):
         nowy_wezel = WezelDwukierunkowy(data)
@@ -108,7 +103,6 @@ class ListaDwukierunkowa:
         nowy_wezel.next = self.head
         self.head.previous = nowy_wezel
         self.head = nowy_wezel
-
 
     def dodaj_na_koncu(self, data):
         nowy_wezel = WezelDwukierunkowy(data)
@@ -124,7 +118,6 @@ class ListaDwukierunkowa:
 
         aktualny_wezel.next = nowy_wezel
         nowy_wezel.previous = aktualny_wezel
-
 
     def dodaj_w_wybranym_miejscu(self, data, index):
         nowy_wezel = WezelDwukierunkowy(data)
@@ -143,7 +136,6 @@ class ListaDwukierunkowa:
         if nowy_wezel.next is not None:
             nowy_wezel.next.previous = nowy_wezel
 
-
     def usun_na_poczatku(self):
         if self.head is None:
             print("lista jest pusta")
@@ -152,7 +144,6 @@ class ListaDwukierunkowa:
         self.head = self.head.next
         aktualny_wezel.next = None
         self.head.previous = None
-
 
     def usun_w_wybranym_miejscu(self, index):
         licznik = 0
@@ -167,7 +158,6 @@ class ListaDwukierunkowa:
         aktualny_wezel.next = None
         aktualny_wezel.previous = None
 
-
     def usun_na_koncu(self):
         if self.head is None:
             print("lista jest pusta")
@@ -180,14 +170,12 @@ class ListaDwukierunkowa:
         aktualny_wezel.next.previous = None
         aktualny_wezel.next = None
 
-
     def wyswietl_od_poczatku(self):
         aktualny_wezel = self.head
 
         while aktualny_wezel is not None:
             print(aktualny_wezel.data)
             aktualny_wezel = aktualny_wezel.next
-
 
     def wyswietl_od_konca(self):
         aktualny_wezel = self.head
@@ -207,7 +195,7 @@ lista1 = ListaJednokierunkowa()
 lista1.dodaj_na_poczatku(4)
 lista1.dodaj_na_poczatku(2)
 lista1.dodaj_na_poczatku(1)
-lista1.dodaj_w_wybranym_miejscu(3,2)
+lista1.dodaj_w_wybranym_miejscu(3, 2)
 lista1.dodaj_na_koncu(5)
 
 lista1.usun_na_koncu()
@@ -226,7 +214,7 @@ lista2.dodaj_w_wybranym_miejscu(3, 2)
 
 lista2.usun_na_poczatku()
 lista2.usun_na_koncu()
-lista2.dodaj_w_wybranym_miejscu(4,2)
+lista2.dodaj_w_wybranym_miejscu(4, 2)
 lista2.usun_w_wybranym_miejscu(1)
 
 lista2.wyswietl_od_poczatku()
