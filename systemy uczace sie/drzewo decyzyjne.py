@@ -1,3 +1,6 @@
+import math
+
+
 def wczytaj_plik(plik):
     otwarty_plik = open(plik, "r")
     caly_tekst = otwarty_plik.read()
@@ -35,16 +38,35 @@ def oblicz_liczbe_wystapien_wartosci(lista):
         for i in range(len(lista)):
             lista2.append(lista[i][j])
         wartosci = set(lista2)
-
+        # print(lista2)
         lista_wystapien = []
-        for k in wartosci:
-            liczba_wystapien = lista2.count(k)
-            # print(f"Wartosc atrybutu: {k}, liczba wystapien: {liczba_wystapien}")
-            zbior3= {k: liczba_wystapien}
-            print(zbior3)
-            lista_wystapien.append(zbior3)
+        for wartosc in wartosci:
+            liczba_wystapien = lista2.count(wartosc)
+            # print(f"Wartosc atrybutu: {wartosc}, liczba wystapien: {liczba_wystapien}")
+            lista3= [wartosc, liczba_wystapien]
+            # print(lista3)
+            lista_wystapien.append(lista3)
         zbior2[j] = lista_wystapien
     return zbior2
+
+def oblicz_entropie(lista_wystapien_wartosci):
+    lista_wystapien_wartosci = lista_wystapien_wartosci.get(len(lista_wystapien_wartosci)-1)
+    # print(lista_wystapien_wartosci)
+
+    suma = 0
+    suma2 = 0
+    lista_wartosci = []
+
+    for i in lista_wystapien_wartosci:
+        suma += i[-1]
+        lista_wartosci.append(i[-1])
+    lista_prawdopodobienstw = [i/suma for i in lista_wartosci]
+    # print(lista_prawdopodobienstw)
+
+    for i in lista_prawdopodobienstw:
+        suma2 += i * math.log2(i)
+    suma2 = suma2*(-1)
+    return suma2
 
 
 lista_z_plikiem = wczytaj_plik("gieldaLiczby.txt")
@@ -56,11 +78,11 @@ liczba_wystapien_wartosci = oblicz_liczbe_wystapien_wartosci(lista_z_plikiem)
 # print(liczba_wystapien_wartosci)
 
 
-# liczba_wystapien_wartosci = liczba_wystapien_wartosci.get(len(liczba_wystapien_wartosci)-1)
-# print(liczba_wystapien_wartosci[0].get)
 
 
 
 
 
+entropia = oblicz_entropie(liczba_wystapien_wartosci)
+print(entropia)
 
