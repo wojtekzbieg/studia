@@ -93,7 +93,7 @@ def oblicz_entropie_klas_decyzyjnych(lista, index):
                     lista1[k][1] += 1
             k += 1
 
-    print(lista1)
+    # print(lista1)
 
     lista_wartosci2 = []
     for i in range(len(lista1)):
@@ -111,7 +111,7 @@ def oblicz_entropie_klas_decyzyjnych(lista, index):
             suma_tymczasowa += j
         liczniki.append(suma_tymczasowa)
         suma_tymczasowa=0
-    print(liczniki)
+    # print(liczniki)
 
     funkcja_informacji = 0
     for i in range(len(liczniki)):
@@ -119,7 +119,8 @@ def oblicz_entropie_klas_decyzyjnych(lista, index):
 
     return funkcja_informacji
 
-
+def oblicz_gain_informacji(entropia, index):
+    return entropia - oblicz_entropie_klas_decyzyjnych(lista_z_plikiem, index)
 
 lista_z_plikiem = wczytaj_plik("gieldaLiczby.txt")
 
@@ -153,3 +154,5 @@ entropia = oblicz_entropie(liczba_wystapien_wartosci, 3)
 
 print(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem, 0))
 # print(oblicz_liczbe_wystapien_wartosci(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem)))
+
+print(oblicz_gain_informacji(entropia, 2))
