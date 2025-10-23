@@ -124,11 +124,11 @@ def oblicz_gain_informacji(entropia, index):
 
 lista_z_plikiem = wczytaj_plik("gieldaLiczby.txt")
 
-liczba_wartosci = oblicz_liczbe_wartosci(lista_z_plikiem)
+# liczba_wartosci = oblicz_liczbe_wartosci(lista_z_plikiem)
 liczba_wystapien_wartosci = oblicz_liczbe_wystapien_wartosci(lista_z_plikiem)
 
 # print(lista_z_plikiem)
-# # print(liczba_wartosci)
+# print(liczba_wartosci)
 # print("--------------")
 # print(liczba_wystapien_wartosci)
 
@@ -152,7 +152,7 @@ entropia = oblicz_entropie(liczba_wystapien_wartosci, 3)
 # print(lista_prawdopodobienstw)
 
 
-print(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem, 0))
+# print(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem, 0))
 # print(oblicz_liczbe_wystapien_wartosci(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem)))
 
-print(oblicz_gain_informacji(entropia, 2))
+print(oblicz_gain_informacji(entropia, 0))
