@@ -43,15 +43,16 @@ def oblicz_liczbe_wystapien_wartosci(lista):
         for wartosc in wartosci:
             liczba_wystapien = lista2.count(wartosc)
             # print(f"Wartosc atrybutu: {wartosc}, liczba wystapien: {liczba_wystapien}")
-            lista3= [wartosc, liczba_wystapien]
+            # lista3= [liczba_wystapien]
             # print(lista3)
-            lista_wystapien.append(lista3)
+            lista_wystapien.append(liczba_wystapien)
         zbior2.append(lista_wystapien)
 
     return zbior2
 
-def oblicz_entropie(lista_wystapien_wartosci, index):
-    lista_wystapien_wartosci = lista_wystapien_wartosci[index]
+def oblicz_entropie(lista_wystapien_wartosci, index = None):
+    if index is not None:
+        lista_wystapien_wartosci = lista_wystapien_wartosci[index]
     # print(lista_wystapien_wartosci)
 
     suma = 0
@@ -59,27 +60,29 @@ def oblicz_entropie(lista_wystapien_wartosci, index):
     lista_wartosci = []
 
     for i in lista_wystapien_wartosci:
-        suma += i[-1]
-        lista_wartosci.append(i[-1])
+        suma += i
+        lista_wartosci.append(i)
     lista_prawdopodobienstw = [i/suma for i in lista_wartosci]
     # print(lista_prawdopodobienstw)
 
     for i in lista_prawdopodobienstw:
+        if i == 0:
+            continue
         suma2 += i * math.log2(i)
     suma2 = suma2*(-1)
     return suma2
 
-def oblicz_entropie_klas_decyzyjnych(lista):
+def oblicz_entropie_klas_decyzyjnych(lista, index):
     nowa_lista = []
     lista_wartosci1 = []
     for i in range(len(lista)):
-        lista_tymczasowa = [lista[i][0], lista[i][-1]]
+        lista_tymczasowa = [lista[i][index], lista[i][-1]]
         nowa_lista.append(lista_tymczasowa)
         lista_wartosci1.append(lista_tymczasowa[0])
 
     lista_wartosci1 = set(lista_wartosci1)
-    lista1 = [[0,0], [0,0], [0,0]]
-    print(lista_wartosci1)
+    lista1 = [[0, 0] for _ in range(len(lista_wartosci1))]
+    # print(lista1)
     for i in range(len(nowa_lista)):
         k = 0
         for j in lista_wartosci1:
@@ -92,6 +95,30 @@ def oblicz_entropie_klas_decyzyjnych(lista):
 
     print(lista1)
 
+    lista_wartosci2 = []
+    for i in range(len(lista1)):
+        lista_wartosci2.append(oblicz_entropie(lista1, index=i))
+
+    suma = 0
+    for i in lista1:
+        for j in i:
+            suma += j
+
+    liczniki = []
+    suma_tymczasowa = 0
+    for i in lista1:
+        for j in i:
+            suma_tymczasowa += j
+        liczniki.append(suma_tymczasowa)
+        suma_tymczasowa=0
+    print(liczniki)
+
+    funkcja_informacji = 0
+    for i in range(len(liczniki)):
+        funkcja_informacji += (liczniki[i] / suma) * lista_wartosci2[i]
+
+    return funkcja_informacji
+
 
 
 lista_z_plikiem = wczytaj_plik("gieldaLiczby.txt")
@@ -102,11 +129,11 @@ liczba_wystapien_wartosci = oblicz_liczbe_wystapien_wartosci(lista_z_plikiem)
 # print(lista_z_plikiem)
 # # print(liczba_wartosci)
 # print("--------------")
-print(liczba_wystapien_wartosci)
+# print(liczba_wystapien_wartosci)
 
 
 entropia = oblicz_entropie(liczba_wystapien_wartosci, 3)
-print(entropia)
+# print(entropia)
 
 
 
@@ -124,5 +151,5 @@ print(entropia)
 # print(lista_prawdopodobienstw)
 
 
-# print(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem))
+print(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem, 0))
 # print(oblicz_liczbe_wystapien_wartosci(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem)))
