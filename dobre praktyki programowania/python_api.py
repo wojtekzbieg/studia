@@ -1,6 +1,7 @@
 from typing import Union
 from fastapi import FastAPI
 from pydantic import BaseModel
+import pandas as pd
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import create_engine, Column, Integer, String, Numeric
 
@@ -89,18 +90,31 @@ def wyswietl_linki():
     return lista_linkow
 
 
+#   LISTA PYTHONOWA
+# def wczytaj_plik(plik, klasa):
+#     with open(plik, mode = "r", encoding="utf-8") as file:
+#         plikCSV = csv.DictReader(file)
+#         for i in plikCSV:
+#             obiekt = klasa(**i)
+#             # print(obiekt.title)
+#             session.add(obiekt)
 
+
+#   DATAFRAME
 def wczytaj_plik(plik, klasa):
-    with open(plik, mode = "r", encoding="utf-8") as file:
-        plikCSV = csv.DictReader(file)
-        for i in plikCSV:
-            obiekt = klasa(**i)
-            session.add(obiekt)
+    df = pd.read_csv(plik)
+    tuples = df.itertuples(index=False)
+    for i in tuples:
+        print(i)
+        obiekt = klasa(**i._asdict())
+        session.add(obiekt)
 
-lista_filmow = session.query(Movie).all()
-lista_tagow = session.query(Tag).all()
-lista_ratingow = session.query(Rating).all()
-lista_linkow = session.query(Link).all()
+
+
+# lista_filmow = session.query(Movie).all()
+# lista_tagow = session.query(Tag).all()
+# lista_ratingow = session.query(Rating).all()
+# lista_linkow = session.query(Link).all()
 
 
 # wczytaj_plik("movies.csv", Movie)
@@ -114,7 +128,7 @@ lista_linkow = session.query(Link).all()
 
 # session.add(movie1)
 # session.query(Movie).delete()
-# session.commit()
+session.commit()
 
 
 # for i in movies:
