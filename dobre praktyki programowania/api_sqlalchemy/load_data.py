@@ -12,7 +12,7 @@ def wczytaj_plik(plik, klasa):
     df = pd.read_csv(plik)
     tuples = df.itertuples(index=False)
     for i in tuples:
-        print(i)
+        # print(i)
         obiekt = klasa(**i._asdict())
         session.add(obiekt)
 
