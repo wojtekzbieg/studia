@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Union
 from fastapi import FastAPI
 from connection import session
 from models import Item, Movie, Tag, Rating, Link
