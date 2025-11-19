@@ -10,7 +10,7 @@ Base = declarative_base()
 class Item(BaseModel):
     name: str
     price: float
-    is_offer: Union[bool, None] = None
+    is_offer: bool | None = None
 
 
 class Movie(Base):

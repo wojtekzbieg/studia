@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Annotated
 from fastapi import FastAPI
 from connection import session
 from models import Item, Movie, Tag, Rating, Link
@@ -14,7 +14,7 @@ def read_root():
 
 
 @app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
+def read_item(item_id: int, q: str | None = None):
     return {"item_id": item_id, "q": q}
 
 
