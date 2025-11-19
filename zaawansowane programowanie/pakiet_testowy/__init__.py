@@ -1,0 +1,1 @@
+print("moduł został zaimportowany poprawnie")
