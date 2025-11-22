@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Union
 from sqlalchemy import Column, Integer, String, Numeric
 from sqlalchemy.orm import declarative_base
 
@@ -47,3 +46,11 @@ class Link(Base):
     movieId = Column(Integer, primary_key=True)
     imdbId = Column(Integer)
     tmdbId = Column(Integer)
+
+
+class User(Base):
+    __tablename__ = "Users"
+
+    userId = Column(Integer, primary_key=True, autoincrement=True)
+    email = Column(String(100))
+    hashed_password = Column(String(200))
