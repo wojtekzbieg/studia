@@ -1,7 +1,7 @@
 from sqlalchemy.orm import declarative_base
 import pandas as pd
 from connection import session, engine
-from models import Movie, Tag, Rating, Link
+from models import Movie, Tag, Rating, Link, User
 
 
 Base = declarative_base()
@@ -27,13 +27,17 @@ def wczytaj_plik(plik, klasa):
 
 
 #       WCZYTYWANIE PLIKOW DO BAZY
-wczytaj_plik("data/movies.csv", Movie)
-wczytaj_plik("data/tags.csv", Tag)
-wczytaj_plik("data/ratings.csv", Rating)
-wczytaj_plik("data/links.csv", Link)
+# wczytaj_plik("data/movies.csv", Movie)
+# wczytaj_plik("data/tags.csv", Tag)
+# wczytaj_plik("data/ratings.csv", Rating)
+# wczytaj_plik("data/links.csv", Link)
 
-#      USUNIECIE ZAWARTOSCI TABELI
+#       USUNIECIE ZAWARTOSCI TABELI
 # session.query(Movie).delete()
+
+#       DODAWANIE USERA
+# user1 = User(email="xyz@gmail.com", hashed_password=get_password_hash("abcd1234"))
+# session.add(user1)
 
 #      COMMIT ZMIAN
 # session.commit()
