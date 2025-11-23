@@ -5,6 +5,7 @@ from fastapi import FastAPI
 # import csv
 import jwt
 from datetime import datetime, timedelta
+from load_data import dodaj_uzytkownika
 
 
 app = FastAPI()
@@ -49,10 +50,18 @@ def wyswietl_linki():
     return lista_linkow
 
 
+@app.post("/rejestracja")
+def rejestracja(email, haslo):
+    dodaj_uzytkownika(email, haslo)
+
+
+
 klucz="asnfj46fsdvtd5fg"
 algorytm="HS256"
+czas_waznosci_tokenu = 30
 
-def stworz_token(payload={"sub": "Wojtek", "expiration": str(datetime.now() + timedelta(minutes=30))}):
+
+def stworz_token(payload={"sub": "Wojtek", "expiration": str(datetime.now() + timedelta(minutes=czas_waznosci_tokenu))}):
     JWT_token_encoded = jwt.encode(payload=payload, key=klucz, algorithm=algorytm)
     return JWT_token_encoded
 
@@ -61,7 +70,12 @@ def zdekoduj_token(token):
     JWT_token_decoded = jwt.decode(jwt=token, key=klucz, algorithms=algorytm)
     return JWT_token_decoded
 
+
 token = stworz_token()
 print(token)
 print(zdekoduj_token(token))
+
+
+# print(dodaj_uzytkownika("asdfghjkl@gmail.com", "haslohaslo123"))
+
 

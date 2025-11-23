@@ -2,12 +2,13 @@ from sqlalchemy.orm import declarative_base
 import pandas as pd
 from connection import session, engine
 from models import Movie, Tag, Rating, Link, User
+import bcrypt
 
 
 Base = declarative_base()
 
 
-#       DATAFRAME
+#       WCZYTYWANIE PLIKOW DO BAZY - DATAFRAME
 def wczytaj_plik(plik, klasa):
     df = pd.read_csv(plik)
     tuples = df.itertuples(index=False)
@@ -16,7 +17,7 @@ def wczytaj_plik(plik, klasa):
         obiekt = klasa(**i._asdict())
         session.add(obiekt)
 
-#       LISTA PYTHONOWA
+#       WCZYTYWANIE PLIKOW DO BAZY - LISTA PYTHONOWA
 # def wczytaj_plik(plik, klasa):
 #     with open(plik, mode = "r", encoding="utf-8") as file:
 #         plikCSV = csv.DictReader(file)
@@ -45,3 +46,14 @@ def wczytaj_plik(plik, klasa):
 #      UTWORZENIE TABEL W BAZIE JESLI ICH NIE MA
 # Base.metadata.create_all(engine)
 
+
+def dodaj_uzytkownika(email, haslo):
+    haslo_bajty = haslo.encode("utf-8")
+    sol = bcrypt.gensalt()
+    zahashowane_haslo = bcrypt.hashpw(haslo_bajty, sol)
+    haslo = zahashowane_haslo.decode("utf-8")
+
+    user = User(email=email, hashed_password=haslo)
+    session.add(user)
+    session.commit()
+    return f"{user.userId}, {user.email}, {user.hashed_password}"
