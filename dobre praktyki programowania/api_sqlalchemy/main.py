@@ -5,7 +5,8 @@ from fastapi import FastAPI, Body, HTTPException, status
 # import csv
 import jwt
 from datetime import datetime, timedelta
-from load_data import dodaj_uzytkownika, zaloguj_uzytkownika
+from load_data import dodaj_uzytkownika
+import bcrypt
 
 
 app = FastAPI()
@@ -60,23 +61,45 @@ def rejestracja(email: str = Body(), haslo: str = Body()):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     return f"{user.email}, {user.userId}, Użytkownik zarejestrowany pomyślnie."
 
+
 @app.post("/login")
 def login(email: str = Body(), haslo: str = Body()):
     try:
-        user = zaloguj_uzytkownika(email, haslo)
+        user, token = zaloguj_uzytkownika(email, haslo)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
-    return f"{user.email}, {user.userId}, Zalogowano pomyślnie."
+    return {"token": token, "token_type": "bearer"}
 
 
 klucz="asnfj46fsdvtd5fg"
 algorytm="HS256"
-czas_waznosci_tokenu = 30
+defaultowy_czas_waznosci_tokenu = 30
 
 
-def stworz_token(payload={"sub": "Wojtek", "expiration": str(datetime.now() + timedelta(minutes=czas_waznosci_tokenu))}):
+def stworz_token(payload: dict, czas_waznosci_tokenu: timedelta | None = None):
+    if czas_waznosci_tokenu is None:
+        czas_waznosci_tokenu = defaultowy_czas_waznosci_tokenu
+
+    payload.update({"exp": datetime.now() + timedelta(minutes=czas_waznosci_tokenu)})
+
     JWT_token_encoded = jwt.encode(payload=payload, key=klucz, algorithm=algorytm)
     return JWT_token_encoded
+
+
+def zaloguj_uzytkownika(email, haslo):
+    user = session.query(User).filter(User.email == email).first()
+
+    if not user:
+        raise ValueError("Niepoprawny email lub hasło.")
+
+    haslo_bajty = haslo.encode("utf-8")
+    zahashowane_haslo_bajty = user.hashed_password.encode("utf-8")
+
+    if not bcrypt.checkpw(haslo_bajty, zahashowane_haslo_bajty):
+        raise ValueError("Niepoprawny email lub hasło.")
+
+    token = stworz_token(payload={"sub": user.email})
+    return user, token
 
 
 def zdekoduj_token(token):
@@ -84,9 +107,9 @@ def zdekoduj_token(token):
     return JWT_token_decoded
 
 
-token = stworz_token()
+token = stworz_token({"sub": "testowy_user"})
 print(token)
-print(zdekoduj_token(token))
+# print(zdekoduj_token(token))
 
 
 # print(dodaj_uzytkownika("asdfghjkl@gmail.com", "haslohaslo123"))
