@@ -48,12 +48,15 @@ def wczytaj_plik(plik, klasa):
 
 
 def dodaj_uzytkownika(email, haslo):
+    if session.query(User).filter(User.email == email).first():
+        raise ValueError("Użytkownik o podanym emailu już istnieje.")
+
     haslo_bajty = haslo.encode("utf-8")
     sol = bcrypt.gensalt()
-    zahashowane_haslo = bcrypt.hashpw(haslo_bajty, sol)
-    haslo = zahashowane_haslo.decode("utf-8")
+    zahashowane_haslo = bcrypt.hashpw(haslo_bajty, sol).decode("utf-8")
 
-    user = User(email=email, hashed_password=haslo)
+    user = User(email=email, hashed_password=zahashowane_haslo)
     session.add(user)
     session.commit()
-    return f"{user.userId}, {user.email}, {user.hashed_password}"
+    session.refresh(user)
+    return user.email

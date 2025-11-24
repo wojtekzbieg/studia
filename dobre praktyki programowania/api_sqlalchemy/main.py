@@ -1,7 +1,7 @@
 from typing import Annotated
 from connection import session
 from models import Item, Movie, Tag, Rating, Link, User
-from fastapi import FastAPI
+from fastapi import FastAPI, Body, HTTPException, status
 # import csv
 import jwt
 from datetime import datetime, timedelta
@@ -51,8 +51,11 @@ def wyswietl_linki():
 
 
 @app.post("/rejestracja")
-def rejestracja(email, haslo):
-    dodaj_uzytkownika(email, haslo)
+def rejestracja(email: str = Body(), haslo: str = Body()):
+    try:
+        dodaj_uzytkownika(email, haslo)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 
