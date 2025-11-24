@@ -5,7 +5,7 @@ from fastapi import FastAPI, Body, HTTPException, status
 # import csv
 import jwt
 from datetime import datetime, timedelta
-from load_data import dodaj_uzytkownika
+from load_data import dodaj_uzytkownika, zaloguj_uzytkownika
 
 
 app = FastAPI()
@@ -53,11 +53,20 @@ def wyswietl_linki():
 @app.post("/rejestracja")
 def rejestracja(email: str = Body(), haslo: str = Body()):
     try:
-        dodaj_uzytkownika(email, haslo)
+        user = dodaj_uzytkownika(email, haslo)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except TypeError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    return f"{user.email}, {user.userId}, Użytkownik zarejestrowany pomyślnie."
+
+@app.post("/login")
+def login(email: str = Body(), haslo: str = Body()):
+    try:
+        user = zaloguj_uzytkownika(email, haslo)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    return f"{user.email}, {user.userId}, Zalogowano pomyślnie."
 
 
 klucz="asnfj46fsdvtd5fg"
