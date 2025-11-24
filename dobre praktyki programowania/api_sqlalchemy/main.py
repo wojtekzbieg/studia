@@ -56,7 +56,8 @@ def rejestracja(email: str = Body(), haslo: str = Body()):
         dodaj_uzytkownika(email, haslo)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
+    except TypeError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 klucz="asnfj46fsdvtd5fg"

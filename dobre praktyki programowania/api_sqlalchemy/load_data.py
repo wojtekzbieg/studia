@@ -51,6 +51,11 @@ def dodaj_uzytkownika(email, haslo):
     if session.query(User).filter(User.email == email).first():
         raise ValueError("Użytkownik o podanym emailu już istnieje.")
 
+    if "@" not in email or "." not in email:
+        raise TypeError("Niepoprawny email.")
+    if len(haslo) < 8:
+        raise TypeError("Hasło musi mieć co najmniej 8 znaków.")
+
     haslo_bajty = haslo.encode("utf-8")
     sol = bcrypt.gensalt()
     zahashowane_haslo = bcrypt.hashpw(haslo_bajty, sol).decode("utf-8")
