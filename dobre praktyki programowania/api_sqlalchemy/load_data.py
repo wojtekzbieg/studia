@@ -3,6 +3,7 @@ import pandas as pd
 from connection import session, engine
 from models import Movie, Tag, Rating, Link, User
 import bcrypt
+# from main import stworz_token
 
 
 Base = declarative_base()
@@ -66,6 +67,22 @@ def dodaj_uzytkownika(email, haslo):
     session.refresh(user)
     return user
 
+
+
+def zaloguj_uzytkownika(email, haslo):
+    user = session.query(User).filter(User.email == email).first()
+
+    if not user:
+        raise ValueError("Niepoprawny email lub hasło.")
+
+    haslo_bajty = haslo.encode("utf-8")
+    zahashowane_haslo_bajty = user.hashed_password.encode("utf-8")
+
+    if not bcrypt.checkpw(haslo_bajty, zahashowane_haslo_bajty):
+        raise ValueError("Niepoprawny email lub hasło.")
+
+    token = stworz_token(payload={"sub": user.email})
+    return user, token
 
 
 

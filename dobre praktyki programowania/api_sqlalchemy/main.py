@@ -1,12 +1,12 @@
 from typing import Annotated
 from connection import session
 from models import Item, Movie, Tag, Rating, Link, User
-from fastapi import FastAPI, Body, HTTPException, status
+from fastapi import FastAPI, Body, HTTPException, status, Header
 # import csv
 import jwt
-from datetime import datetime, timedelta
-from load_data import dodaj_uzytkownika
-import bcrypt
+from datetime import datetime, timedelta, timezone
+from load_data import dodaj_uzytkownika, zaloguj_uzytkownika
+
 
 
 app = FastAPI()
@@ -76,42 +76,38 @@ algorytm="HS256"
 defaultowy_czas_waznosci_tokenu = 30
 
 
-def stworz_token(payload: dict, czas_waznosci_tokenu: timedelta | None = None):
+def stworz_token(payload: dict, czas_waznosci_tokenu: int | None = None):
     if czas_waznosci_tokenu is None:
         czas_waznosci_tokenu = defaultowy_czas_waznosci_tokenu
 
-    payload.update({"exp": datetime.now() + timedelta(minutes=czas_waznosci_tokenu)})
+    exp = datetime.now(timezone.utc) + timedelta(minutes=czas_waznosci_tokenu)
+    payload.update({"exp": exp})
 
     JWT_token_encoded = jwt.encode(payload=payload, key=klucz, algorithm=algorytm)
     return JWT_token_encoded
 
 
-def zaloguj_uzytkownika(email, haslo):
-    user = session.query(User).filter(User.email == email).first()
-
-    if not user:
-        raise ValueError("Niepoprawny email lub hasło.")
-
-    haslo_bajty = haslo.encode("utf-8")
-    zahashowane_haslo_bajty = user.hashed_password.encode("utf-8")
-
-    if not bcrypt.checkpw(haslo_bajty, zahashowane_haslo_bajty):
-        raise ValueError("Niepoprawny email lub hasło.")
-
-    token = stworz_token(payload={"sub": user.email})
-    return user, token
-
-
 def zdekoduj_token(token):
-    JWT_token_decoded = jwt.decode(jwt=token, key=klucz, algorithms=algorytm)
+    JWT_token_decoded = jwt.decode(jwt=token, key=klucz, algorithms=[algorytm])
     return JWT_token_decoded
 
 
-token = stworz_token({"sub": "testowy_user"})
-print(token)
+# token = stworz_token({"sub": "testowy_user"})
+# print(token)
 # print(zdekoduj_token(token))
 
 
 # print(dodaj_uzytkownika("asdfghjkl@gmail.com", "haslohaslo123"))
 
 
+def wyciagnij_token(authorization: str = Header(default=None)):
+    if authorization is None:
+        raise ValueError("Brak nagłówka Authorization")
+
+    pociety_naglowek = authorization.split(" ")
+
+    if len(pociety_naglowek) != 2 or pociety_naglowek[0].lower() != "bearer":
+        raise ValueError("Niepoprawny format nagłówka Authorization")
+
+    token = pociety_naglowek[-1]
+    return token
