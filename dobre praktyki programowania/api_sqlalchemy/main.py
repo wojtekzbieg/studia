@@ -62,7 +62,7 @@ def rejestracja(email: str = Body(), haslo: str = Body()):
     return f"{user.email}, {user.userId}, Użytkownik zarejestrowany pomyślnie."
 
 
-@app.post("/login")
+@app.post("/logowanie")
 def login(email: str = Body(), haslo: str = Body()):
     try:
         user, token = zaloguj_uzytkownika(email, haslo)
@@ -111,3 +111,19 @@ def wyciagnij_token(authorization: str = Header(default=None)):
 
     token = pociety_naglowek[-1]
     return token
+
+
+def sprawdz_token():
+    try:
+        token = wyciagnij_token()
+        zdekodowany_token = zdekoduj_token(token)
+        return zdekodowany_token.get("sub")
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token wygasł")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Niepoprawny token")
+
+
+# print(sprawdz_token("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0b3d5X3VzZXIiLCJleHAiOjE3NjQwODM1NDN9.VMOIbsULjjpyKq2aYXo9C6U6HZOhnJuuh4nuW-P0gkA"))
