@@ -4,11 +4,14 @@ from fastapi import Header, HTTPException, status
 import bcrypt
 from connection import session
 from models import User
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-klucz="asnfj46fsdvtd5fg"
-algorytm="HS256"
-defaultowy_czas_waznosci_tokenu = 30
+klucz = os.getenv("KLUCZ")
+algorytm = os.getenv("ALGORYTM")
+defaultowy_czas_waznosci_tokenu = int(os.getenv("DEFAULTOWY_CZAS_WAZNOSCI_TOKENU"))
 
 
 def stworz_token(payload: dict, czas_waznosci_tokenu: int | None = None):
