@@ -44,7 +44,7 @@ def sprawdz_token(authorization: str = Header(default=None)):
     try:
         token = wyciagnij_token(authorization)
         zdekodowany_token = zdekoduj_token(token)
-        return zdekodowany_token.get("sub")
+        return zdekodowany_token
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
     except jwt.ExpiredSignatureError:
@@ -66,7 +66,7 @@ def zaloguj_uzytkownika(email, haslo):
     if not bcrypt.checkpw(haslo_bajty, zahashowane_haslo_bajty):
         raise ValueError("Niepoprawny email lub hasło.")
 
-    token = stworz_token(payload={"sub": user.email})
+    token = stworz_token(payload={"sub": user.email, "is_admin": user.is_admin})
     return user, token
 
 
@@ -83,7 +83,7 @@ def zarejestruj_uzytkownika(email, haslo):
     sol = bcrypt.gensalt()
     zahashowane_haslo = bcrypt.hashpw(haslo_bajty, sol).decode("utf-8")
 
-    user = User(email=email, hashed_password=zahashowane_haslo)
+    user = User(email=email, hashed_password=zahashowane_haslo, is_admin=0)
     session.add(user)
     session.commit()
     session.refresh(user)
@@ -94,9 +94,9 @@ def zarejestruj_uzytkownika(email, haslo):
 # testowyuser@gmail.com, haslohaslo123
 # jankowalski@gmail.com, qwerty123
 # eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW5rb3dhbHNraUBnbWFpbC5jb20iLCJleHAiOjE3NjQxNDQzNDJ9.u00sIuom4Ux8Tqt9Lou3kH91YOovkk-ddYIl_HzjL9o
-token = stworz_token({"sub": "testowyuser@gmail.com"})
-print(token)
-print(zdekoduj_token(token))
+# token = stworz_token({"sub": "testowyuser@gmail.com", "is_admin": 0})
+# print(token)
+# print(zdekoduj_token(token))
 
 
 # print(dodaj_uzytkownika("asdfghjkl@gmail.com", "haslohaslo123"))

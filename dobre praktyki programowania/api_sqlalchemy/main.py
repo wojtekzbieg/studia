@@ -24,32 +24,32 @@ def update_item(item_id: int, item: Item):
 
 
 @app.get("/filmy")
-def wyswietl_filmy(sub: str = Depends(sprawdz_token)):
+def wyswietl_filmy(payload: str = Depends(sprawdz_token)):
     lista_filmow = session.query(Movie).all()
-    return {"user": sub, "filmy": lista_filmow}
+    return {"user": payload, "filmy": lista_filmow}
 
 
 @app.get("/tagi")
-def wyswietl_tagi(sub: str = Depends(sprawdz_token)):
+def wyswietl_tagi(payload: str = Depends(sprawdz_token)):
     lista_tagow = session.query(Tag).all()
-    return {"user": sub, "tagi": lista_tagow}
+    return {"user": payload, "tagi": lista_tagow}
 
 
 @app.get("/ratingi")
-def wyswietl_ratingi(sub: str = Depends(sprawdz_token)):
+def wyswietl_ratingi(payload: str = Depends(sprawdz_token)):
     lista_ratingow = session.query(Rating).all()
-    return {"user": sub, "ratingi": lista_ratingow}
+    return {"user": payload, "ratingi": lista_ratingow}
 
 
 @app.get("/linki")
-def wyswietl_linki(sub: str = Depends(sprawdz_token)):
+def wyswietl_linki(payload: str = Depends(sprawdz_token)):
     lista_linkow = session.query(Link).all()
-    return {"user": sub, "linki": lista_linkow}
+    return {"user": payload, "linki": lista_linkow}
 
 
 @app.get("/user-details")
-def szczegoly_uzytkownika(sub: str = Depends(sprawdz_token)):
-    return sub
+def szczegoly_uzytkownika(payload: str = Depends(sprawdz_token)):
+    return payload
 
 
 @app.post("/rejestracja")
@@ -60,7 +60,7 @@ def rejestracja(email: str = Body(), haslo: str = Body()):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except TypeError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    return f"{user.email}, {user.userId}, Użytkownik zarejestrowany pomyślnie."
+    return f"{user.email}, {user.userId}, {user.is_admin}, Użytkownik zarejestrowany pomyślnie."
 
 
 @app.post("/logowanie")

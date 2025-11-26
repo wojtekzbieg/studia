@@ -54,3 +54,4 @@ class User(Base):
     userId = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(100))
     hashed_password = Column(String(200))
+    is_admin = Column(Integer, default=0)
