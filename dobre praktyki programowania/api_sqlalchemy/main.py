@@ -72,3 +72,5 @@ def login(email: str = Body(), haslo: str = Body()):
     return {"token": token, "token_type": "bearer"}
 
 
+# TO DO:
+# - def vs async def
