@@ -1,4 +1,4 @@
-from connection import session
+from connection import stworz_sesje
 from models import Item, Movie, Tag, Rating, Link
 from fastapi import FastAPI, Body, HTTPException, status, Depends
 from JWT import sprawdz_token, zarejestruj_uzytkownika, zaloguj_uzytkownika
@@ -24,25 +24,25 @@ def update_item(item_id: int, item: Item):
 
 
 @app.get("/filmy")
-def wyswietl_filmy(payload: str = Depends(sprawdz_token)):
+def wyswietl_filmy(payload: str = Depends(sprawdz_token), session = Depends(stworz_sesje)):
     lista_filmow = session.query(Movie).all()
     return {"user": payload, "filmy": lista_filmow}
 
 
 @app.get("/tagi")
-def wyswietl_tagi(payload: str = Depends(sprawdz_token)):
+def wyswietl_tagi(payload: str = Depends(sprawdz_token), session = Depends(stworz_sesje)):
     lista_tagow = session.query(Tag).all()
     return {"user": payload, "tagi": lista_tagow}
 
 
 @app.get("/ratingi")
-def wyswietl_ratingi(payload: str = Depends(sprawdz_token)):
+def wyswietl_ratingi(payload: str = Depends(sprawdz_token), session = Depends(stworz_sesje)):
     lista_ratingow = session.query(Rating).all()
     return {"user": payload, "ratingi": lista_ratingow}
 
 
 @app.get("/linki")
-def wyswietl_linki(payload: str = Depends(sprawdz_token)):
+def wyswietl_linki(payload: str = Depends(sprawdz_token), session = Depends(stworz_sesje)):
     lista_linkow = session.query(Link).all()
     return {"user": payload, "linki": lista_linkow}
 
@@ -53,9 +53,9 @@ def szczegoly_uzytkownika(payload: str = Depends(sprawdz_token)):
 
 
 @app.post("/rejestracja")
-def rejestracja(email: str = Body(), haslo: str = Body()):
+def rejestracja(email: str = Body(), haslo: str = Body(), session = Depends(stworz_sesje)):
     try:
-        user = zarejestruj_uzytkownika(email, haslo)
+        user = zarejestruj_uzytkownika(email, haslo, session)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except TypeError as e:
@@ -64,9 +64,9 @@ def rejestracja(email: str = Body(), haslo: str = Body()):
 
 
 @app.post("/logowanie")
-def login(email: str = Body(), haslo: str = Body()):
+def login(email: str = Body(), haslo: str = Body(), session = Depends(stworz_sesje)):
     try:
-        user, token = zaloguj_uzytkownika(email, haslo)
+        user, token = zaloguj_uzytkownika(email, haslo, session)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
     return {"token": token, "token_type": "bearer"}

@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from fastapi import Header, HTTPException, status
 import bcrypt
-from connection import session
 from models import User
 import os
 from dotenv import load_dotenv
@@ -57,7 +56,7 @@ def sprawdz_token(authorization: str = Header(default=None)):
 
 
 
-def zaloguj_uzytkownika(email, haslo):
+def zaloguj_uzytkownika(email, haslo, session):
     user = session.query(User).filter(User.email == email).first()
 
     if not user:
@@ -73,7 +72,7 @@ def zaloguj_uzytkownika(email, haslo):
     return user, token
 
 
-def zarejestruj_uzytkownika(email, haslo):
+def zarejestruj_uzytkownika(email, haslo, session):
     if session.query(User).filter(User.email == email).first():
         raise ValueError("Użytkownik o podanym emailu już istnieje.")
 
