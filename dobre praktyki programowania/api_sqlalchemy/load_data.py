@@ -1,6 +1,6 @@
 from sqlalchemy.orm import declarative_base
 import pandas as pd
-from connection import session, engine
+from connection import SessionLocal, engine
 from models import Movie, Tag, Rating, Link, User
 
 
@@ -8,7 +8,7 @@ Base = declarative_base()
 
 
 #       WCZYTYWANIE PLIKOW DO BAZY - DATAFRAME
-def wczytaj_plik(plik, klasa):
+def wczytaj_plik(plik, klasa, session):
     df = pd.read_csv(plik)
     tuples = df.itertuples(index=False)
     for i in tuples:
@@ -26,25 +26,35 @@ def wczytaj_plik(plik, klasa):
 #             session.add(obiekt)
 
 
-#       WCZYTYWANIE PLIKOW DO BAZY
-# wczytaj_plik("data/movies.csv", Movie)
-# wczytaj_plik("data/tags.csv", Tag)
-# wczytaj_plik("data/ratings.csv", Rating)
-# wczytaj_plik("data/links.csv", Link)
+if __name__ == "__main__":
+    session = SessionLocal()
+    try:
+        #      UTWORZENIE TABEL W BAZIE JESLI ICH NIE MA
+        # Base.metadata.create_all(engine)
+        # print("Utworzono tabele.")
 
-#       USUNIECIE ZAWARTOSCI TABELI
-# session.query(Movie).delete()
+        #       WCZYTYWANIE PLIKOW DO BAZY
+        # wczytaj_plik("data/movies.csv", Movie, session)
+        # wczytaj_plik("data/tags.csv", Tag, session)
+        # wczytaj_plik("data/ratings.csv", Rating, session)
+        # wczytaj_plik("data/links.csv", Link, session)
 
-#       DODAWANIE USERA
-# user1 = User(email="xyz@gmail.com", hashed_password=get_password_hash("abcd1234"))
-# session.add(user1)
-
-#      COMMIT ZMIAN
-# session.commit()
-
-#      UTWORZENIE TABEL W BAZIE JESLI ICH NIE MA
-# Base.metadata.create_all(engine)
+        #       USUNIECIE ZAWARTOSCI TABELI
+        # session.query(Movie).delete()
+        # print("Usunięto zawartość tabeli")
 
 
+        #      COMMIT ZMIAN
+        # session.commit()
+        # print("Zatwierdzono zmiany w bazie danych.")
 
+        pass
+
+    except Exception as e:
+        print(f"Wystąpił błąd: {e}")
+        # W razie błędu wycofujemy zmiany
+        session.rollback()
+
+    finally:
+        session.close()
 
