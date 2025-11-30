@@ -27,7 +27,9 @@ def wczytaj_plik(plik, klasa, session):
 
 
 if __name__ == "__main__":
+
     session = SessionLocal()
+
     try:
         #      UTWORZENIE TABEL W BAZIE JESLI ICH NIE MA
         # Base.metadata.create_all(engine)
