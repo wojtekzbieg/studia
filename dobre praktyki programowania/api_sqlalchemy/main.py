@@ -2,6 +2,10 @@ from connection import stworz_sesje
 from models import Item, Movie, Tag, Rating, Link
 from fastapi import FastAPI, Body, HTTPException, status, Depends
 from JWT import sprawdz_token, zarejestruj_uzytkownika, zaloguj_uzytkownika
+import requests
+import numpy as np
+import cv2
+import pika
 
 
 
@@ -72,5 +76,16 @@ def login(email: str = Body(), haslo: str = Body(), session = Depends(stworz_ses
     return {"token": token, "token_type": "bearer"}
 
 
-# TO DO:
-# - def vs async def
+@app.get("/analyze_img")
+def odbierz_zdjecie(img_url):
+    connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
+    channel = connection.channel()
+    channel.queue_declare(queue="image_queue")
+    channel.basic_publish(exchange='', routing_key="image_queue", body=img_url)
+
+
+
+
+
+
+
