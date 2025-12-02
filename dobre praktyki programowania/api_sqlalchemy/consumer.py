@@ -3,6 +3,7 @@ import pika
 import requests
 import numpy as np
 import time
+import json
 
 
 connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
@@ -12,8 +13,13 @@ channel.queue_declare(queue="image_queue")
 def callback(ch, method, properties, body):
     start = time.time()
 
-    url = body.decode('utf-8')
-    print(f"Odebrano URL: {url}")
+    decoded_body = body.decode('utf-8')
+    body_dict = json.loads(decoded_body)
+
+    url = body_dict["img_url"]
+    id = body_dict["id"]
+
+    # print(f"Odebrano URL: {url}")
 
     response = requests.get(url)
     arr = np.frombuffer(response.content, dtype=np.uint8)
@@ -24,9 +30,11 @@ def callback(ch, method, properties, body):
 
     boxes, weights = hog.detectMultiScale(img)
 
-    print({"people count": len(boxes)})
+    liczba_ludzi = len(boxes)
+    czas_przetwarzania = time.time() - start
 
-    print(f"Czas przetwarzania: {time.time() - start} sekund\n")
+    print({"id": id, "liczba ludzi": liczba_ludzi, "czas przetwarzania": czas_przetwarzania, "url": url})
+    print()
 
 channel.basic_consume(queue="image_queue", on_message_callback=callback, auto_ack=True)
 print("Oczekiwanie na wiadomości. Naciśnij CTRL+C, aby zakończyć.")

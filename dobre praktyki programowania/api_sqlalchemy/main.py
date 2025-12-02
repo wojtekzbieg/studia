@@ -2,14 +2,14 @@ from connection import stworz_sesje
 from models import Item, Movie, Tag, Rating, Link
 from fastapi import FastAPI, Body, HTTPException, status, Depends
 from JWT import sprawdz_token, zarejestruj_uzytkownika, zaloguj_uzytkownika
-import requests
-import numpy as np
-import cv2
 import pika
+import json
 
 
 
 app = FastAPI()
+
+task_id = 0
 
 
 @app.get("/")
@@ -81,8 +81,15 @@ def odbierz_zdjecie(img_url):
     connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
     channel = connection.channel()
     channel.queue_declare(queue="image_queue")
-    channel.basic_publish(exchange='', routing_key="image_queue", body=img_url)
 
+    global task_id
+    message = {"id": task_id, "img_url": img_url}
+    body = json.dumps(message)
+
+    channel.basic_publish(exchange='', routing_key="image_queue", body=body)
+
+    task_id += 1
+    return {"message": "Zdjęcie wysłane do analizy", "id": task_id - 1}
 
 
 
