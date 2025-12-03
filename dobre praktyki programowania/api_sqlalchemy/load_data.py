@@ -1,14 +1,14 @@
 from sqlalchemy.orm import declarative_base
 import pandas as pd
-from connection import session, engine
-from models import Movie, Tag, Rating, Link
+from connection import SessionLocal, engine
+from models import Movie, Tag, Rating, Link, User
 
 
 Base = declarative_base()
 
 
-#       DATAFRAME
-def wczytaj_plik(plik, klasa):
+#       WCZYTYWANIE PLIKOW DO BAZY - DATAFRAME
+def wczytaj_plik(plik, klasa, session):
     df = pd.read_csv(plik)
     tuples = df.itertuples(index=False)
     for i in tuples:
@@ -16,7 +16,7 @@ def wczytaj_plik(plik, klasa):
         obiekt = klasa(**i._asdict())
         session.add(obiekt)
 
-#       LISTA PYTHONOWA
+#       WCZYTYWANIE PLIKOW DO BAZY - LISTA PYTHONOWA
 # def wczytaj_plik(plik, klasa):
 #     with open(plik, mode = "r", encoding="utf-8") as file:
 #         plikCSV = csv.DictReader(file)
@@ -26,18 +26,37 @@ def wczytaj_plik(plik, klasa):
 #             session.add(obiekt)
 
 
-#       WCZYTYWANIE PLIKOW DO BAZY
-wczytaj_plik("data/movies.csv", Movie)
-wczytaj_plik("data/tags.csv", Tag)
-wczytaj_plik("data/ratings.csv", Rating)
-wczytaj_plik("data/links.csv", Link)
+if __name__ == "__main__":
 
-#      USUNIECIE ZAWARTOSCI TABELI
-# session.query(Movie).delete()
+    session = SessionLocal()
 
-#      COMMIT ZMIAN
-# session.commit()
+    try:
+        #      UTWORZENIE TABEL W BAZIE JESLI ICH NIE MA
+        # Base.metadata.create_all(engine)
+        # print("Utworzono tabele.")
 
-#      UTWORZENIE TABEL W BAZIE JESLI ICH NIE MA
-# Base.metadata.create_all(engine)
+        #       WCZYTYWANIE PLIKOW DO BAZY
+        # wczytaj_plik("data/movies.csv", Movie, session)
+        # wczytaj_plik("data/tags.csv", Tag, session)
+        # wczytaj_plik("data/ratings.csv", Rating, session)
+        # wczytaj_plik("data/links.csv", Link, session)
+
+        #       USUNIECIE ZAWARTOSCI TABELI
+        # session.query(Movie).delete()
+        # print("Usunięto zawartość tabeli")
+
+
+        #      COMMIT ZMIAN
+        # session.commit()
+        # print("Zatwierdzono zmiany w bazie danych.")
+
+        pass
+
+    except Exception as e:
+        print(f"Wystąpił błąd: {e}")
+        # W razie błędu wycofujemy zmiany
+        session.rollback()
+
+    finally:
+        session.close()
 

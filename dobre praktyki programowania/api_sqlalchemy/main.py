@@ -1,11 +1,15 @@
-from typing import Annotated
-from fastapi import FastAPI
-from connection import session
+from connection import stworz_sesje
 from models import Item, Movie, Tag, Rating, Link
-# import csv
+from fastapi import FastAPI, Body, HTTPException, status, Depends
+from JWT import sprawdz_token, zarejestruj_uzytkownika, zaloguj_uzytkownika
+import pika
+import json
+
 
 
 app = FastAPI()
+
+task_id = 0
 
 
 @app.get("/")
@@ -24,26 +28,71 @@ def update_item(item_id: int, item: Item):
 
 
 @app.get("/filmy")
-def wyswietl_filmy():
+def wyswietl_filmy(payload: str = Depends(sprawdz_token), session = Depends(stworz_sesje)):
     lista_filmow = session.query(Movie).all()
-    return lista_filmow
+    return {"user": payload, "filmy": lista_filmow}
 
 
 @app.get("/tagi")
-def wyswietl_tagi():
+def wyswietl_tagi(payload: str = Depends(sprawdz_token), session = Depends(stworz_sesje)):
     lista_tagow = session.query(Tag).all()
-    return lista_tagow
+    return {"user": payload, "tagi": lista_tagow}
 
 
 @app.get("/ratingi")
-def wyswietl_ratingi():
+def wyswietl_ratingi(payload: str = Depends(sprawdz_token), session = Depends(stworz_sesje)):
     lista_ratingow = session.query(Rating).all()
-    return lista_ratingow
+    return {"user": payload, "ratingi": lista_ratingow}
 
 
 @app.get("/linki")
-def wyswietl_linki():
+def wyswietl_linki(payload: str = Depends(sprawdz_token), session = Depends(stworz_sesje)):
     lista_linkow = session.query(Link).all()
-    return lista_linkow
+    return {"user": payload, "linki": lista_linkow}
+
+
+@app.get("/user-details")
+def szczegoly_uzytkownika(payload: str = Depends(sprawdz_token)):
+    return payload
+
+
+@app.post("/rejestracja")
+def rejestracja(email: str = Body(), haslo: str = Body(), session = Depends(stworz_sesje)):
+    try:
+        user = zarejestruj_uzytkownika(email, haslo, session)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except TypeError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    return f"{user.email}, {user.userId}, {user.is_admin}, Użytkownik zarejestrowany pomyślnie."
+
+
+@app.post("/logowanie")
+def login(email: str = Body(), haslo: str = Body(), session = Depends(stworz_sesje)):
+    try:
+        user, token = zaloguj_uzytkownika(email, haslo, session)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    return {"token": token, "token_type": "bearer"}
+
+
+@app.get("/analyze_img")
+def odbierz_zdjecie(img_url):
+    connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
+    channel = connection.channel()
+    channel.queue_declare(queue="image_queue")
+
+    global task_id
+    message = {"id": task_id, "img_url": img_url}
+    body = json.dumps(message)
+
+    channel.basic_publish(exchange='', routing_key="image_queue", body=body)
+
+    task_id += 1
+    return {"message": "Zdjęcie wysłane do analizy", "id": task_id - 1}
+
+
+
+
 
 

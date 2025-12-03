@@ -3,9 +3,16 @@ from sqlalchemy.orm import sessionmaker
 
 
 db_link = "sqlite:///C:/Users/Wojtek/DataGripProjects/identifier.sqlite"
-engine = create_engine(db_link)
+engine = create_engine(db_link, connect_args={"check_same_thread": False})
 
-Session = sessionmaker(bind=engine)
-session = Session()
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+
+
+def stworz_sesje():
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
 
 
