@@ -4,6 +4,7 @@ from fastapi import FastAPI, Body, HTTPException, status, Depends
 from JWT import sprawdz_token, zarejestruj_uzytkownika, zaloguj_uzytkownika
 import pika
 import json
+import os
 
 
 
@@ -78,7 +79,8 @@ def login(email: str = Body(), haslo: str = Body(), session = Depends(stworz_ses
 
 @app.get("/analyze_img")
 def odbierz_zdjecie(img_url):
-    connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
+    rabbit_host = os.getenv("RABBITMQ_HOST", "localhost")
+    connection = pika.BlockingConnection(pika.ConnectionParameters(rabbit_host))
     channel = connection.channel()
     channel.queue_declare(queue="image_queue")
 

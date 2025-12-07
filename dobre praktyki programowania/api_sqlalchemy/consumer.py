@@ -4,9 +4,10 @@ import requests
 import numpy as np
 import time
 import json
+import os
 
-
-connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
+rabbit_host = os.getenv("RABBITMQ_HOST", "localhost")
+connection = pika.BlockingConnection(pika.ConnectionParameters(rabbit_host))
 channel = connection.channel()
 channel.queue_declare(queue="image_queue")
 
