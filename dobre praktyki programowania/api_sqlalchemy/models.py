@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, Numeric
+from sqlalchemy import Column, Integer, String, Numeric, Float
 from sqlalchemy.orm import declarative_base
 
 
@@ -55,3 +55,13 @@ class User(Base):
     email = Column(String(100))
     hashed_password = Column(String(200))
     is_admin = Column(Integer, default=0)
+
+
+class ImageAnalysisResult(Base):
+    __tablename__ = "ImageAnalysisResults"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    worker_task_id = Column(Integer, unique=True)
+    img_url = Column(String(200))
+    people_count = Column(Integer)
+    processing_time = Column(Float)
