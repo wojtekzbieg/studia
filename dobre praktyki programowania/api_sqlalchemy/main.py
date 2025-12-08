@@ -11,8 +11,6 @@ import uuid
 
 app = FastAPI()
 
-task_id = 0
-
 
 @app.get("/")
 def read_root():
@@ -85,13 +83,13 @@ def odbierz_zdjecie(img_url):
     channel = connection.channel()
     channel.queue_declare(queue="image_queue")
 
-    taskId = str(uuid.uuid4())
-    message = {"id": taskId, "img_url": img_url}
+    task_id = str(uuid.uuid4())
+    message = {"id": task_id, "img_url": img_url}
     body = json.dumps(message)
 
     channel.basic_publish(exchange='', routing_key="image_queue", body=body)
 
-    return {"message": "Zdjęcie wysłane do analizy", "id": taskId}
+    return {"message": "Zdjęcie wysłane do analizy", "id": task_id}
 
 
 
