@@ -5,6 +5,7 @@ from JWT import sprawdz_token, zarejestruj_uzytkownika, zaloguj_uzytkownika
 import pika
 import json
 import os
+import uuid
 
 
 
@@ -84,14 +85,13 @@ def odbierz_zdjecie(img_url):
     channel = connection.channel()
     channel.queue_declare(queue="image_queue")
 
-    global task_id
-    message = {"id": task_id, "img_url": img_url}
+    taskId = str(uuid.uuid4())
+    message = {"id": taskId, "img_url": img_url}
     body = json.dumps(message)
 
     channel.basic_publish(exchange='', routing_key="image_queue", body=body)
 
-    task_id += 1
-    return {"message": "Zdjęcie wysłane do analizy", "id": task_id - 1}
+    return {"message": "Zdjęcie wysłane do analizy", "id": taskId}
 
 
 
