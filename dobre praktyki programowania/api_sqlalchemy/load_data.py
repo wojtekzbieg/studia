@@ -34,7 +34,7 @@ if __name__ == "__main__":
         #      UTWORZENIE TABEL W BAZIE JESLI ICH NIE MA
         # Base.metadata.create_all(engine)
         Base.metadata.create_all(bind=engine, tables=[ImageAnalysisResult.__table__])
-        print("Utworzono tabele.")
+        # print("Utworzono tabele.")
 
         #       WCZYTYWANIE PLIKOW DO BAZY
         # wczytaj_plik("data/movies.csv", Movie, session)
@@ -43,13 +43,13 @@ if __name__ == "__main__":
         # wczytaj_plik("data/links.csv", Link, session)
 
         #       USUNIECIE ZAWARTOSCI TABELI
-        # session.query(Movie).delete()
+        # session.query(ImageAnalysisResult).delete()
         # print("Usunięto zawartość tabeli")
 
 
         #      COMMIT ZMIAN
         session.commit()
-        print("Zatwierdzono zmiany w bazie danych.")
+        # print("Zatwierdzono zmiany w bazie danych.")
 
     except Exception as e:
         print(f"Wystąpił błąd: {e}")

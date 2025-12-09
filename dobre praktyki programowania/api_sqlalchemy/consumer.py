@@ -17,12 +17,10 @@ def callback(ch, method, properties, body):
     decoded_body = body.decode('utf-8')
     body_dict = json.loads(decoded_body)
 
-    url = body_dict["img_url"]
+    img_url = body_dict["img_url"]
     id = body_dict["id"]
 
-    # print(f"Odebrano URL: {url}")
-
-    response = requests.get(url)
+    response = requests.get(img_url)
     arr = np.frombuffer(response.content, dtype=np.uint8)
     img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
 
@@ -34,7 +32,14 @@ def callback(ch, method, properties, body):
     liczba_ludzi = len(boxes)
     czas_przetwarzania = time.time() - start
 
-    print({"id": id, "liczba ludzi": liczba_ludzi, "czas przetwarzania": czas_przetwarzania, "url": url})
+    wyniki = {"id": id, "liczba_ludzi": liczba_ludzi, "czas_przetwarzania": czas_przetwarzania, "img_url": img_url}
+
+    api_host = os.getenv("API_HOST", "127.0.0.1")
+    endpoint_url = f"http://{api_host}:8000/submit_img_analysis_results"
+
+    requests.post(url=endpoint_url,json=wyniki)
+
+    print(wyniki)
     print()
 
 channel.basic_consume(queue="image_queue", on_message_callback=callback, auto_ack=True)

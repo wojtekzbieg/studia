@@ -1,5 +1,5 @@
-from connection import stworz_sesje
-from models import Item, Movie, Tag, Rating, Link
+from connection import stworz_sesje, SessionLocal
+from models import Item, Movie, Tag, Rating, Link, ImageAnalysisResult
 from fastapi import FastAPI, Body, HTTPException, status, Depends
 from JWT import sprawdz_token, zarejestruj_uzytkownika, zaloguj_uzytkownika
 import pika
@@ -77,7 +77,7 @@ def login(email: str = Body(), haslo: str = Body(), session = Depends(stworz_ses
 
 
 @app.get("/analyze_img")
-def odbierz_zdjecie(img_url):
+def odbierz_link_do_zdjecia(img_url):
     rabbit_host = os.getenv("RABBITMQ_HOST", "localhost")
     connection = pika.BlockingConnection(pika.ConnectionParameters(rabbit_host))
     channel = connection.channel()
@@ -92,7 +92,18 @@ def odbierz_zdjecie(img_url):
     return {"message": "Zdjęcie wysłane do analizy", "id": task_id}
 
 
-
-
-
-
+@app.post("/submit_img_analysis_results")
+def zapisz_wynik_w_bazie(result: dict = Body(), session = SessionLocal()):
+    try:
+        result = ImageAnalysisResult(
+            worker_task_id=result.get("id"),
+            img_url=result.get("img_url"),
+            people_count=result.get("liczba_ludzi"),
+            processing_time=result.get("czas_przetwarzania"))
+        session.add(result)
+        session.commit()
+        print(f"Zadanie {result.id}: wynik analizy obrazu został pomyślnie zapisany w bazie.")
+        return result.id
+    except Exception as e:
+        print(f"Błąd bazy: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

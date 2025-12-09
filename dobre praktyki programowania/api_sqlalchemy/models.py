@@ -61,7 +61,7 @@ class ImageAnalysisResult(Base):
     __tablename__ = "ImageAnalysisResults"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    worker_task_id = Column(Integer, unique=True)
+    worker_task_id = Column(String(50), unique=True)
     img_url = Column(String(200))
     people_count = Column(Integer)
     processing_time = Column(Float)
