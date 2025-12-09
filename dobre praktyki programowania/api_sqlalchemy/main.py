@@ -93,13 +93,13 @@ def odbierz_link_do_zdjecia(img_url):
 
 
 @app.post("/submit_img_analysis_results")
-def zapisz_wynik_w_bazie(result: dict = Body(), session = SessionLocal()):
+def zapisz_wynik_w_bazie(results: dict = Body(), session = Depends(stworz_sesje)):
     try:
         result = ImageAnalysisResult(
-            worker_task_id=result.get("id"),
-            img_url=result.get("img_url"),
-            people_count=result.get("liczba_ludzi"),
-            processing_time=result.get("czas_przetwarzania"))
+            worker_task_id=results.get("id"),
+            img_url=results.get("img_url"),
+            people_count=results.get("liczba_ludzi"),
+            processing_time=results.get("czas_przetwarzania"))
         session.add(result)
         session.commit()
         print(f"Zadanie {result.id}: wynik analizy obrazu został pomyślnie zapisany w bazie.")
