@@ -1,7 +1,7 @@
 from sqlalchemy.orm import declarative_base
 import pandas as pd
 from connection import SessionLocal, engine
-from models import Movie, Tag, Rating, Link, User
+from models import Movie, Tag, Rating, Link, User, ImageAnalysisResult
 
 
 Base = declarative_base()
@@ -33,6 +33,7 @@ if __name__ == "__main__":
     try:
         #      UTWORZENIE TABEL W BAZIE JESLI ICH NIE MA
         # Base.metadata.create_all(engine)
+        Base.metadata.create_all(bind=engine, tables=[ImageAnalysisResult.__table__])
         # print("Utworzono tabele.")
 
         #       WCZYTYWANIE PLIKOW DO BAZY
@@ -42,15 +43,13 @@ if __name__ == "__main__":
         # wczytaj_plik("data/links.csv", Link, session)
 
         #       USUNIECIE ZAWARTOSCI TABELI
-        # session.query(Movie).delete()
+        # session.query(ImageAnalysisResult).delete()
         # print("Usunięto zawartość tabeli")
 
 
         #      COMMIT ZMIAN
-        # session.commit()
+        session.commit()
         # print("Zatwierdzono zmiany w bazie danych.")
-
-        pass
 
     except Exception as e:
         print(f"Wystąpił błąd: {e}")

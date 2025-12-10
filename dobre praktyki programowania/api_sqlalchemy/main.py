@@ -1,15 +1,15 @@
-from connection import stworz_sesje
-from models import Item, Movie, Tag, Rating, Link
+from connection import stworz_sesje, SessionLocal
+from models import Item, Movie, Tag, Rating, Link, ImageAnalysisResult
 from fastapi import FastAPI, Body, HTTPException, status, Depends
 from JWT import sprawdz_token, zarejestruj_uzytkownika, zaloguj_uzytkownika
 import pika
 import json
+import os
+import uuid
 
 
 
 app = FastAPI()
-
-task_id = 0
 
 
 @app.get("/")
@@ -77,22 +77,33 @@ def login(email: str = Body(), haslo: str = Body(), session = Depends(stworz_ses
 
 
 @app.get("/analyze_img")
-def odbierz_zdjecie(img_url):
-    connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
+def odbierz_link_do_zdjecia(img_url):
+    rabbit_host = os.getenv("RABBITMQ_HOST", "localhost")
+    connection = pika.BlockingConnection(pika.ConnectionParameters(rabbit_host))
     channel = connection.channel()
     channel.queue_declare(queue="image_queue")
 
-    global task_id
+    task_id = str(uuid.uuid4())
     message = {"id": task_id, "img_url": img_url}
     body = json.dumps(message)
 
     channel.basic_publish(exchange='', routing_key="image_queue", body=body)
 
-    task_id += 1
-    return {"message": "Zdjęcie wysłane do analizy", "id": task_id - 1}
+    return {"message": "Zdjęcie wysłane do analizy", "id": task_id}
 
 
-
-
-
-
+@app.post("/submit_img_analysis_results")
+def zapisz_wynik_w_bazie(results: dict = Body(), session = Depends(stworz_sesje)):
+    try:
+        result = ImageAnalysisResult(
+            worker_task_id=results.get("id"),
+            img_url=results.get("img_url"),
+            people_count=results.get("liczba_ludzi"),
+            processing_time=results.get("czas_przetwarzania"))
+        session.add(result)
+        session.commit()
+        print(f"Zadanie {result.id}: wynik analizy obrazu został pomyślnie zapisany w bazie.")
+        return result.id
+    except Exception as e:
+        print(f"Błąd bazy: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
