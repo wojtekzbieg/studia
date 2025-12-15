@@ -5,17 +5,12 @@ def wczytaj_plik(plik):
     otwarty_plik = open(plik, "r")
     caly_tekst = otwarty_plik.read()
 
-    if caly_tekst[-1] == "\n":
-        caly_tekst = caly_tekst[0:-1]
+    linie = [linia for linia in caly_tekst.split("\n") if linia.strip() != ""]
 
-    caly_tekst = caly_tekst.replace(",", "").split("\n")
-
-    lista=[]
-
-    for j in range(0, len(caly_tekst)):
-        lista_tymczasowa = []
-        for i in range(0, len(caly_tekst[j])):
-            lista_tymczasowa.append(int(caly_tekst[j][i]))
+    lista = []
+    for linia in linie:
+        elementy = linia.split(",")
+        lista_tymczasowa = [element.strip() for element in elementy]
         lista.append(lista_tymczasowa)
 
     return lista
@@ -72,87 +67,138 @@ def oblicz_entropie(lista_wystapien_wartosci, index = None):
     suma2 = suma2*(-1)
     return suma2
 
-def oblicz_entropie_klas_decyzyjnych(lista, index):
-    nowa_lista = []
-    lista_wartosci1 = []
-    for i in range(len(lista)):
-        lista_tymczasowa = [lista[i][index], lista[i][-1]]
-        nowa_lista.append(lista_tymczasowa)
-        lista_wartosci1.append(lista_tymczasowa[0])
+def oblicz_informacje_atrybutu_warunkowego(dane, index_atrybutu):
+    wartosci_atrybutu = set([wiersz[index_atrybutu] for wiersz in dane])
 
-    lista_wartosci1 = set(lista_wartosci1)
-    lista1 = [[0, 0] for _ in range(len(lista_wartosci1))]
-    # print(lista1)
-    for i in range(len(nowa_lista)):
-        k = 0
-        for j in lista_wartosci1:
-            if nowa_lista[i][0] == j:
-                if nowa_lista[i][1] == 0:
-                    lista1[k][0] += 1
-                elif nowa_lista[i][1] == 1:
-                    lista1[k][1] += 1
-            k += 1
+    info = 0
+    liczba_wszystkich = len(dane)
 
-    # print(lista1)
+    for wartosc in wartosci_atrybutu:
+        podzbior = [wiersz for wiersz in dane if wiersz[index_atrybutu] == wartosc]
 
-    lista_wartosci2 = []
-    for i in range(len(lista1)):
-        lista_wartosci2.append(oblicz_entropie(lista1, index=i))
+        decyzje_w_podzbiorze = [wiersz[-1] for wiersz in podzbior]
 
-    suma = 0
-    for i in lista1:
-        for j in i:
-            suma += j
+        unikalne_decyzje = set(decyzje_w_podzbiorze)
+        liczebnosci = [decyzje_w_podzbiorze.count(d) for d in unikalne_decyzje]
 
-    liczniki = []
-    suma_tymczasowa = 0
-    for i in lista1:
-        for j in i:
-            suma_tymczasowa += j
-        liczniki.append(suma_tymczasowa)
-        suma_tymczasowa=0
-    # print(liczniki)
+        waga = len(podzbior) / liczba_wszystkich
+        info += waga * oblicz_entropie(liczebnosci)
+    # print(f"Info: {info}")
+    return info
 
-    funkcja_informacji = 0
-    for i in range(len(liczniki)):
-        funkcja_informacji += (liczniki[i] / suma) * lista_wartosci2[i]
+def oblicz_gain_informacji(dane, index):
+    wszystkie_wystapienia = oblicz_liczbe_wystapien_wartosci(dane)
+    wystapienia_decyzji = wszystkie_wystapienia[-1]
+    startowa_entropia = oblicz_entropie(wystapienia_decyzji)
 
-    return funkcja_informacji
+    gain = startowa_entropia - oblicz_informacje_atrybutu_warunkowego(dane, index)
+    # print(f"Gain: {gain}")
+    return gain
 
-def oblicz_gain_informacji(entropia, index):
-    return entropia - oblicz_entropie_klas_decyzyjnych(lista_z_plikiem, index)
+def oblicz_zrownowazony_gain_informacji(dane, gain, index):
+    wszystkie_wystapienia = oblicz_liczbe_wystapien_wartosci(dane)
+    split_info = oblicz_entropie(wszystkie_wystapienia, index=index)
+    if split_info == 0:
+        return 0
+    zrownowazony_gain = gain/split_info
+    # print(f"Gain Ratio: {zrownowazony_gain}")
+    return zrownowazony_gain
 
-lista_z_plikiem = wczytaj_plik("gieldaLiczby.txt")
+def znajdz_najlepszy_atrybut(dane):
+    slownik = {}
+    for i in range(len(dane[0])-1):
+        gain = oblicz_gain_informacji(dane, i)
+        slownik[i] = oblicz_zrownowazony_gain_informacji(dane, gain, i)
+    najlepszy_atrybut = max(slownik, key=slownik.get)
 
-# liczba_wartosci = oblicz_liczbe_wartosci(lista_z_plikiem)
-liczba_wystapien_wartosci = oblicz_liczbe_wystapien_wartosci(lista_z_plikiem)
+    if slownik.get(najlepszy_atrybut) > 0:
+        return najlepszy_atrybut
+    else:
+        return None
 
-# print(lista_z_plikiem)
-# print(liczba_wartosci)
-# print("--------------")
-# print(liczba_wystapien_wartosci)
+def wybierz_klase_wiekszosciowa(dane):
+    decyzje = [wiersz[-1] for wiersz in dane]
+    return max(decyzje, key=decyzje.count)
+
+def buduj_drzewo(dane):
+    najlepszy_atrybut = znajdz_najlepszy_atrybut(dane)
+
+    if najlepszy_atrybut is None:
+        return wybierz_klase_wiekszosciowa(dane)
+
+    drzewo = {
+        "atrybut": najlepszy_atrybut,
+        "galaz": {}
+    }
+
+    wartosci_atrybutu = set([wiersz[najlepszy_atrybut] for wiersz in dane])
+
+    for wartosc in wartosci_atrybutu:
+        podzbior = [wiersz for wiersz in dane if wiersz[najlepszy_atrybut] == wartosc]
+
+        drzewo["galaz"][wartosc] = buduj_drzewo(podzbior)
+
+    return drzewo
+
+def rysuj_drzewo(drzewo, wciecie=0):
+    if not isinstance(drzewo, dict):
+        print("    " * wciecie + f"==> Decyzja: {drzewo}")
+        return
+
+    indeks_atrybutu = drzewo["atrybut"]
+    print("    " * wciecie + f"[Wezel: a{indeks_atrybutu + 1}]")
+
+    for wartosc, poddrzewo in drzewo["galaz"].items():
+        print("    " * wciecie + f"  -- gdy {wartosc} --> ", end="")
+
+        if not isinstance(poddrzewo, dict):
+            print(f"Decyzja: {poddrzewo}")
+        else:
+            print()
+            rysuj_drzewo(poddrzewo, wciecie + 1)
+
+def pokaz_statystyki_korzenia(dane):
+    print("--- SZCZEGÓŁOWE OBLICZENIA DLA KORZENIA ---")
+
+    wszystkie_wystapienia = oblicz_liczbe_wystapien_wartosci(dane)
+    liczebnosci_decyzji = wszystkie_wystapienia[-1]
+    entropia_startowa = oblicz_entropie(liczebnosci_decyzji)
+
+    print(f"Entropia zbioru: {entropia_startowa}")
+    print("Gain(X,T) = Entropia zbioru - Info(X,T)\n")
+
+    najlepszy_index = -1
+    najlepszy_ratio = -1.0
+
+    liczba_atrybutow = len(dane[0]) - 1
+
+    for i in range(liczba_atrybutow):
+        info = oblicz_informacje_atrybutu_warunkowego(dane, i)
+        gain = entropia_startowa - info
+        ratio = oblicz_zrownowazony_gain_informacji(dane, gain, i)
+
+        print(f"Info(A{i+1},T) = {info}")
+        print(f"Gain(A{i+1},T) = {gain}")
+        print(f"GainRatio(A{i+1},T) = {ratio}")
+
+        if ratio > najlepszy_ratio:
+            najlepszy_ratio = ratio
+            najlepszy_index = i
+
+    print(f"\nWybrany atrybut A{najlepszy_index+1}, bo w tym przypadku najwyższa jest wartość GainRatio: {najlepszy_ratio}")
+    print("---------------------------------------------")
 
 
-entropia = oblicz_entropie(liczba_wystapien_wartosci, 3)
-# print(entropia)
 
+lista_z_plikiem = wczytaj_plik("breast-cancer_klasa_na_koncu.data")
 
-
-
-# liczba_wystapien_wartosci = liczba_wystapien_wartosci.get(0)
-# print(liczba_wystapien_wartosci)
+# lista_wystapien_wartosci = oblicz_liczbe_wystapien_wartosci(lista_z_plikiem)
 #
-# lista_wartosci = []
-# suma = 0
-# for i in liczba_wystapien_wartosci:
-#     suma += i[-1]
-#     lista_wartosci.append(i[-1])
-#
-# lista_prawdopodobienstw = [i/suma for i in lista_wartosci]
-# print(lista_prawdopodobienstw)
+# znajdz_najlepszy_atrybut(lista_z_plikiem)
 
 
-# print(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem, 0))
-# print(oblicz_liczbe_wystapien_wartosci(oblicz_entropie_klas_decyzyjnych(lista_z_plikiem)))
+pokaz_statystyki_korzenia(lista_z_plikiem)
 
-print(oblicz_gain_informacji(entropia, 0))
+drzewo_wynikowe = buduj_drzewo(lista_z_plikiem)
+
+rysuj_drzewo(drzewo_wynikowe)
